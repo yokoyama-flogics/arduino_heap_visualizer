@@ -21,6 +21,7 @@ Any improvements, feedback, and repo forks are welcome.
 ### Arduino side
 
 In the subdirectory `arduino_heap`, compile and upload to an Arduino Uno.
+(Tested with Arduino 1.8.19.)
 
 - `arduino_heap.ino`: a sample program
 - `heapmon.cpp`: a helper code
