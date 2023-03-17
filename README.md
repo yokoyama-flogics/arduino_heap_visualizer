@@ -79,6 +79,8 @@ Here is the legend for the color chart in Python output:
 It is also used for nesting function calls, and also by interrupt service routines (or ISR).
 The top (smallest) address of the stack is called the "stack pointer (or SP)".
 
+  > Strictly speaking, the AVR architecture defines SP to be one byte less than the top of the stack.
+
     - The stack spaces marked with dots are where it is currently (and actually) occupied by local variables and nesting function calls.
       The printed information is as of the time you called `heapmon_print_stats()` (explained later).
 
