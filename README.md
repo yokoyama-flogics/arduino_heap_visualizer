@@ -1,3 +1,5 @@
+# Heap and Stack Utilization Visualizer for Arduino (Uno)
+
 This is a simple text-based tool for visualizing the heap and stack utilization of Arduino (especially AVR5 architecture, e.g. Uno or ATmega328).
 
 As is well known, the Arduino Uno has only 2 kilobytes of RAM, and the RAM area is shared by data, BSS, heap, and also stack sections.
