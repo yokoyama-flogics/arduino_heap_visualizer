@@ -95,7 +95,7 @@ def visualize(sp, estpeak_sp, brkval, flp):
             c = " "
             mem[addr - MEM_OFFSET] = (c, (None, "on_cyan", ["bold"]))
 
-    for pos, addr in enumerate(range(sp, MEM_SIZE + MEM_OFFSET)):
+    for pos, addr in enumerate(range(sp + 1, MEM_SIZE + MEM_OFFSET)):
         c = pos_char("STACK", pos)
         mem[addr - MEM_OFFSET] = (c, (None, "on_cyan", ["bold"]))
 
