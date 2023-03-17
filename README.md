@@ -102,7 +102,7 @@ The top (smallest) address of the stack is called the "stack pointer (or SP)".
 - `heapmon_print_consts()`: This call is mandatory.
   Should be called once `Serial.begin()` done.
 
-- `heapmon_print_stats()`: This is essential function to print heal and stack usage.
+- `heapmon_print_stats()`: This is essential function to print heap and stack usage.
   Whenever you think (or suspect) heap or stack utilization is affected, you can call this anytime.
   Especially, to record the maximum stack usage, it should be called in the deepest nesting functions as following.
 
