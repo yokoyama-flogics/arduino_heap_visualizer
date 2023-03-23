@@ -24,6 +24,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import argparse
 import os
 import sys
 
@@ -34,7 +35,6 @@ PORT = "/dev/cu.usbserial-DA0147I3"
 SERIAL_SPEED = 115200
 HEAPMON_HEADER = "#># HEAPMON"
 COLOR_NORMAL = (None, None, [])
-FORCE_COLOR = True
 DEBUG = False
 
 MEM_SIZE = 2048
@@ -202,11 +202,33 @@ def decode_heapmon(s):
 
 
 def main():
-    if FORCE_COLOR:
+    parser = argparse.ArgumentParser(
+        prog="visualize.py",
+        description="Heap and Stack Utilization Visualizer for Arduino (Uno)",
+        epilog="Refer https://github.com/yokoyama-flogics/arduino_heap_visualizer",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("port", help="Arduino serial port (e.g. /dev/tty0)")
+    parser.add_argument(
+        "-b",
+        "--baud",
+        dest="serial_speed",
+        default=SERIAL_SPEED,
+        help="serial port speed (aka baud rate)",
+    )
+    parser.add_argument(
+        "-R",
+        "--force-color",
+        action="store_true",
+        help="Use ANSI color escape sequences even stdout is not a tty",
+    )
+    args = parser.parse_args()
+
+    if args.force_color:
         os.environ["FORCE_COLOR"] = "1"
 
     lenh = len(HEAPMON_HEADER)
-    ser = serial.Serial(PORT, SERIAL_SPEED)
+    ser = serial.Serial(args.port, args.serial_speed)
 
     while True:
         try:

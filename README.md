@@ -40,13 +40,22 @@ Using pip, please install the following libraries.
 
 `requirements.txt` is also available.
 
-In the subdirectory `visualizer_python`, first edit the code `visualize.py`.
-**This needs to be improved soon.**
-Please modify the following lines according to your environment.
+In the subdirectory `visualizer_python`, running `python3 visualize.py` with the argument "-h" gives the following help.
 
-```python
-PORT = "/dev/cu.usbserial-DA0147I3"
-SERIAL_SPEED = 115200
+```
+usage: visualize.py [-h] [-b SERIAL_SPEED] [-R] port
+
+Heap and Stack Utilization Visualizer for Arduino (Uno)
+
+positional arguments:
+  port                  Arduino serial port (e.g. /dev/tty0)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b SERIAL_SPEED, --baud SERIAL_SPEED
+                        serial port speed (aka baud rate) (default: 115200)
+  -R, --force-color     Use ANSI color escape sequences even stdout is not a
+                        tty (default: False)
 ```
 
 By running `visualize.py`, you will see a visualization like below.
