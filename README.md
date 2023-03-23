@@ -68,6 +68,10 @@ Example: [Arduino Memory Guide | Arduino Documentation | Arduino Documentation](
 
 Here is the legend for the color chart in Python output:
 
+The leftmost hexadecimal numbers are the memory (RAM) starting address for the memory dump in the right part.
+
+One character in the dump portion corresponds to one byte of memory.
+
 ![legend](./image/legend.png)
 
 - "data" is the section occupied by constant values.
@@ -131,5 +135,9 @@ void C() {  // This is the deepest nesting function call (A() -> B() -> C()).
     heapmon_print_stats();
 }
 ```
+
+## Blogs
+
+- [Written in Japanese, but there is a translation button on the top right.](https://flogics.com/wp/ja/2023/03/visualize_heap_and_stack_usage_of_arduino_uno/)
 
 (c) Copyright 2023, Atsushi Yokoyama, Firmlogics
