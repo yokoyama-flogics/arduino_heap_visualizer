@@ -214,13 +214,13 @@ def main():
         "--baud",
         dest="serial_speed",
         default=SERIAL_SPEED,
-        help="serial port speed (aka baud rate)",
+        help="serial port speed (baud rate)",
     )
     parser.add_argument(
         "-R",
         "--force-color",
         action="store_true",
-        help="Use ANSI color escape sequences even stdout is not a tty",
+        help="Force ANSI color even if stdout is not a tty",
     )
     args = parser.parse_args()
 

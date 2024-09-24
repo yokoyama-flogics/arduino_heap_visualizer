@@ -1,46 +1,41 @@
 # Heap and Stack Utilization Visualizer for Arduino (Uno)
 
-This is a simple text-based tool for visualizing the heap and stack utilization of Arduino (especially AVR5 architecture, e.g. Uno or ATmega328).
+This is a simple, text-based tool designed to visualize heap and stack utilization for Arduino devices, particularly those using the AVR5 architecture (e.g., the Uno or ATmega328).
 
-As is well known, the Arduino Uno has only 2 kilobytes of RAM, and the RAM area is shared by data, BSS, heap, and also stack sections.
-In particular, the heap and stack consume the same area, from smaller address (heap) and also from larger address (stack) at the same time.
-So using large amounts of heap and stack can lead to strange behavior, and the problem is hard to solve very often.
+As is well known, the Arduino Uno has only 2 kilobytes of RAM, which is shared among the data, BSS, heap, and stack sections.
+Specifically, the heap grows from lower addresses, while the stack grows from higher addresses, both moving toward the middle of the RAM.
+This makes managing memory crucial, as excessive heap or stack usage can cause unexpected behavior, which is often difficult to diagnose.
 
-This tool consists of two software parts.
-One (helper code) runs on the Arduino (written in C++) and the other on the PC (written in Python).
-The Arduino helper code prints diagnostic information when some helper functions are called.
-The Python code, on the other hand, decodes diagnostic information and visualizes it in color in a text terminal.
+This tool consists of two parts:
+- The helper code that runs on the Arduino (written in C++), which outputs diagnostic information when specific helper functions are called.
+- A Python script that runs on a PC, which decodes this diagnostic information and visualizes it in a text terminal using color.
 
-**Currently, this software is still under development.**  So it may have silly bugs.
-I will continuously improve the software.
-Thank you for your understanding.
-Any improvements, feedback, and repo forks are welcome.
+**Note: This software is still under development.**  Bugs are possible, but I plan to continually improve the software.
+Feedback, improvements, and forks of the repository are welcome.
 
 ## Usage
 
 ### Arduino side
 
-In the subdirectory `arduino_heap`, compile and upload to an Arduino Uno.
-(Tested with Arduino 1.8.19.)
+In the `arduino_heap` subdirectory, compile and upload the code to an Arduino Uno.
+(Tested with Arduino IDE version 1.8.19.)
 
 - `arduino_heap.ino`: a sample program
-- `heapmon.cpp`: a helper code
-- `heapmon.h`: a header file for the helper code
+- `heapmon.cpp`: the helper code
+- `heapmon.h`: the header file for the helper code
 
 ### PC side
 
-First, you need a recent version of Python 3.
-I tested the code by Python 3.9.11 on macOS.
+You will need a recent version of Python 3. I tested the script with Python 3.9.11 on macOS.
 
-In addition, two separate libraries are required.
-Using pip, please install the following libraries.
+Additionally, you will need to install two libraries via pip:
 
 - `pyserial`
 - `termcolor`
 
-`requirements.txt` is also available.
+A `requirements.txt` file is also available for easy installation.
 
-In the subdirectory `visualizer_python`, running `python3 visualize.py` with the argument "-h" gives the following help.
+In the `visualizer_python` subdirectory, running `python3 visualize.py -h` will show the following help message:
 
 ```
 usage: visualize.py [-h] [-b SERIAL_SPEED] [-R] port
@@ -53,73 +48,63 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -b SERIAL_SPEED, --baud SERIAL_SPEED
-                        serial port speed (aka baud rate) (default: 115200)
-  -R, --force-color     Use ANSI color escape sequences even stdout is not a
-                        tty (default: False)
+                        serial port speed (baud rate) (default: 115200)
+  -R, --force-color     Force ANSI color even if stdout is not a tty
+                        (default: False)
 ```
 
-By running `visualize.py`, you will see a visualization like below.
+Running `visualize.py` will produce a visual output similar to the one below:
 
 ![screenshot1](./image/screenshot1.png)
 
-__Notice: If you're unfamiliar with keywords such as BSS, data, heap and stack sections, please find some tutorials on the Internet.__
+__Note:__ If you are unfamiliar with terms like BSS, data, heap, or stack, please consult online tutorials.
 
-Example: [Arduino Memory Guide | Arduino Documentation | Arduino Documentation](https://docs.arduino.cc/learn/programming/memory-guide)
+Example: [Arduino Memory Guide | Arduino Documentation](https://docs.arduino.cc/learn/programming/memory-guide/)
 
-Here is the legend for the color chart in Python output:
+### Legend for the Python Output
 
-The leftmost hexadecimal numbers are the memory (RAM) starting address for the memory dump in the right part.
+The hexadecimal numbers on the left represent the starting memory (RAM) addresses for the corresponding memory dump shown on the right.
 
-One character in the dump portion corresponds to one byte of memory.
+Each character in the dump corresponds to one byte of memory.
 
 ![legend](./image/legend.png)
 
-- "data" is the section occupied by constant values.
+- **data**: section containing constant values
+- **BSS**: section containing global (and static) variables
+- **heap**: dynamically allocated memory (e.g., via `malloc()` or `realloc()`)
 
-- "BSS" is the section occupied by global (and possibly static) variables.
+  > Arduino's `String` type allocates memory on the heap.
+  > Excessive use of `String` can easily lead to memory exhaustion, even if it doesn’t seem excessive.
 
-- "heap" is the section that is normally allocated dynamically by calling `malloc()` and `realloc()`.
+    - Dotted areas (`...`) in the heap represent actively allocated memory.
+    - Non-dotted areas are free and unused but may be fragmented, which can lead to memory inefficiency.
 
-  > As frequently discussed on the Internet forums, the Arduino "String" type allocates strings on the "heap".
-  > Therefore, excessive use of `String` (often not considered excessive by programmers) leads to memory exhaustion.
+- **stack**: stores local variables and handles function call nesting and interrupts (ISR).
+  The top of the stack is referred to as the stack pointer (SP).
 
-    - The "heap" spaces marked with dots (`...`) are where it is currently and actually allocated.
+  > On the AVR architecture, the stack pointer points to the memory address just before the current top of the stack.
 
-    - Spaces without dots are in the free list, and currently not used.
-      This is sometimes called "fragmentation".
+    - Dotted areas in the stack represent active memory used by local variables or function calls.
+      The data shown reflects the state at the time `heapmon_print_stats()` was called.
 
-- "stack" is the section stores local variables.
-It is also used for nesting function calls, and also by interrupt service routines (or ISR).
-The top (smallest) address of the stack is called the "stack pointer (or SP)".
-
-  > Strictly speaking, the AVR architecture defines SP to be one byte less than the top of the stack.
-
-    - The stack spaces marked with dots are where it is currently (and actually) occupied by local variables and nesting function calls.
-      The printed information is as of the time you called `heapmon_print_stats()` (explained later).
-
-    - Spaces without dots are not currently used (contains junk data).
-      However, the space may have "chance" once conflicted with the "heap" section, so far.
-      Programmers should be aware of the **maximum** stack usage.
+    - Non-dotted areas are not currently in use but may have previously conflicted with heap usage.
+      Developers should monitor **maximum** stack utilization to avoid potential issues.
 
 ## Limitations
 
-- Some information about the hardware (or processor architecture) is hard-coded in the C++ and Python code.
+- Some hardware (or processor architecture) information is hard-coded into both the C++ and Python scripts.
+- Stack usage estimates represent an **approximation**.
+  Accurate determination of maximum stack usage is difficult, and the estimation algorithm may require further improvements.
 
-- Stack usage (or maximum utilization so far) is just an **estimate**.
-  Determining the actual maximum stack usage is difficult.
-  (And the estimation code may need to be improved in the future.)
+## Arduino Function Call Descriptions
 
-## Explanation of Arduino side function calls
+- `heapmon_fill_stack()`: This function is optional but necessary to estimate maximum stack usage.
+  It should be called early in the `setup()` function.
 
-- `heapmon_fill_stack()`: Calling this function is optional, but required to estimate maximum stack usage.
-  This function should be called as soon as possible in `setup()`.
+- `heapmon_print_consts()`: This mandatory function should be called after `Serial.begin()`.
 
-- `heapmon_print_consts()`: This call is mandatory.
-  Should be called once `Serial.begin()` done.
-
-- `heapmon_print_stats()`: This is essential function to print heap and stack usage.
-  Whenever you think (or suspect) heap or stack utilization is affected, you can call this anytime.
-  Especially, to record the maximum stack usage, it should be called in the deepest nesting functions as following.
+- `heapmon_print_stats()`: This key function prints the current heap and stack usage.
+  It should be called whenever you suspect memory usage has changed, particularly at the deepest levels of function nesting to record maximum stack usage.
 
 ```C++
 void A() {
@@ -130,7 +115,7 @@ void B() {
     C();
 }
 
-void C() {  // This is the deepest nesting function call (A() -> B() -> C()).
+void C() {  // Deepest level of function nesting (A() -> B() -> C()).
     // some code
     heapmon_print_stats();
 }
@@ -138,6 +123,6 @@ void C() {  // This is the deepest nesting function call (A() -> B() -> C()).
 
 ## Blogs
 
-- [Written in Japanese, but there is a translation button on the top right.](https://flogics.com/wp/ja/2023/03/visualize_heap_and_stack_usage_of_arduino_uno/)
+- [This blog is written in Japanese, but a translation option is available in the top-right corner.](https://flogics.com/wp/ja/2023/03/visualize_heap_and_stack_usage_of_arduino_uno/)
 
 (c) Copyright 2023, Atsushi Yokoyama, Firmlogics
